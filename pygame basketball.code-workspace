@@ -1,7 +1,80 @@
-{
-	"folders": [
-		{
-			"path": "."
-		}
-	]
-}
+import pygame
+import sys
+
+# 初始化 Pygame
+pygame.init()
+
+# 設定視窗大小
+width, height = 800, 600
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption('2D 籃球遊戲')
+
+# 色彩
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+
+# 球的資訊
+ball_radius = 20
+ball_color = RED
+ball_pos = [width // 2, height // 2]
+ball_speed = [2, 3]
+
+# 籃框的資訊
+hoop_width = 120
+hoop_height = 10
+hoop_color = BLUE
+hoop_pos = [width // 2 - hoop_width // 2, height - 50]
+hoop_speed = 5
+
+# 主遊戲迴圈
+running = True
+clock = pygame.time.Clock()
+while running:
+    screen.fill(WHITE)
+    
+    # 事件處理
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                hoop_pos[0] -= hoop_speed
+            elif event.key == pygame.K_RIGHT:
+                hoop_pos[0] += hoop_speed
+    
+    # 移動球
+    ball_pos[0] += ball_speed[0]
+    ball_pos[1] += ball_speed[1]
+    
+    # 碰撞邊界偵測
+    if ball_pos[0] + ball_radius > width or ball_pos[0] - ball_radius < 0:
+        ball_speed[0] = -ball_speed[0]
+    if ball_pos[1] + ball_radius > height or ball_pos[1] - ball_radius < 0:
+        ball_speed[1] = -ball_speed[1]
+    
+    # 檢查球是否進入籃框
+    if (hoop_pos[0] < ball_pos[0] < hoop_pos[0] + hoop_width) and \
+       (hoop_pos[1] < ball_pos[1] < hoop_pos[1] + hoop_height):
+        ball_color = BLUE  # 若進入籃框，將球顏色改為籃框顏色
+    else:
+        ball_color = RED
+    
+    # 限制籃框在視窗內移動
+    hoop_pos[0] = max(0, min(hoop_pos[0], width - hoop_width))
+    
+    # 畫出籃框
+    pygame.draw.rect(screen, hoop_color, (hoop_pos[0], hoop_pos[1], hoop_width, hoop_height))
+    
+    # 畫出球
+    pygame.draw.circle(screen, ball_color, (int(ball_pos[0]), int(ball_pos[1])), ball_radius)
+    
+    # 更新畫面
+    pygame.display.flip()
+    
+    # 控制遊戲更新速度
+    clock.tick(60)
+
+# 退出 Pygame
+pygame.quit()
+sys.exit()
